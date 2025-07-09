@@ -38,8 +38,9 @@ public class BinCountryCostServiceImplTest {
         //SETUP
         String bin = "123456";
         String country = "AR";
+        Long id = 1L;
         Double cost = 10.0;
-        ClearingCost clearingCost = new ClearingCost(country, cost);
+        ClearingCost clearingCost = new ClearingCost(id,country, cost);
 
         //MOCK
         when(binLookupService.getCountryByBin(bin)).thenReturn(country);
