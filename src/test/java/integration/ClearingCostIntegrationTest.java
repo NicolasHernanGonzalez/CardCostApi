@@ -27,7 +27,7 @@ public class ClearingCostIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    //@Test
+    @Test
     public void createAndGetClearingCost() throws Exception {
         String payload = """
                 {
@@ -97,10 +97,7 @@ public class ClearingCostIntegrationTest {
         mockMvc.perform(delete("/api/cost/UY"))
                 .andExpect(status().isNoContent());
 
-        // Verificar que ya no existe
         mockMvc.perform(get("/api/cost/UY"))
                 .andExpect(status().isNotFound());
     }
-
-
 }

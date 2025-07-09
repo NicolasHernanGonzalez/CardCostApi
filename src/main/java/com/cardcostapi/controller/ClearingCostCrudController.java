@@ -2,7 +2,6 @@ package com.cardcostapi.controller;
 
 import com.cardcostapi.domain.ClearingCost;
 import com.cardcostapi.services.ClearingCostCrudServiceImpl;
-import com.cardcostapi.utils.CountryValidator;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +38,6 @@ public class ClearingCostCrudController {
 
     @DeleteMapping("/{country}")
     public ResponseEntity<Void> deleteClearingCost(@Valid @PathVariable String country) {
-        CountryValidator.validateOrThrow(country);
         clearingCostService.deleteClearingCost(country);
         return ResponseEntity.noContent().build();
     }
