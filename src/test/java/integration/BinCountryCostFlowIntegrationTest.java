@@ -58,7 +58,7 @@ public class BinCountryCostFlowIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(panPayload))
 
-                .andExpect(status().isFound())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.country").value("BR"))
                 .andExpect(jsonPath("$.cost").value(123.45));
 
@@ -96,7 +96,7 @@ public class BinCountryCostFlowIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(panPayload))
         //Verify
-                .andExpect(status().isFound())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.country").value("Others"))
                 .andExpect(jsonPath("$.cost").value(77));
 
