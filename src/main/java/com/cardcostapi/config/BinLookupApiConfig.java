@@ -12,18 +12,8 @@ import java.time.Duration;
 @Getter
 @Setter
 public class BinLookupApiConfig {
-
     private String baseUrl;
     private int connectTimeout;
     private int readTimeout;
     private int retries;
-    private CircuitBreakerConfig circuitBreaker;
-
-    @Getter
-    @Setter
-    public static class CircuitBreakerConfig {
-        private float failureRateThreshold;
-        private Duration waitDurationInOpenState;
-        private int slidingWindowSize;
-    }
 }
