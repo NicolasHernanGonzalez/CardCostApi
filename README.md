@@ -180,6 +180,20 @@ mvn test
 
 ---
 
+## 🐳 Uso con Docker Compose
+
+Si tenés Docker y Docker Compose instalados, podés levantar la aplicación fácilmente con:
+
+```bash
+docker-compose up --build
+```
+
+Esto construirá la imagen a partir del `Dockerfile` y expondrá la API en:
+
+> http://localhost:8080
+
+No se requiere base de datos externa, ya que la aplicación utiliza **H2 embebido** para persistencia temporal.
+
 ## 👨‍💻 Autor
 
 - **Nombre**: Nicolas Gonzalez
