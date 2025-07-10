@@ -3,6 +3,7 @@ package com.cardcostapi.services;
 import com.cardcostapi.domain.ClearingCost;
 import com.cardcostapi.exception.ClearingCostNotFoundException;
 import com.cardcostapi.repository.ClearingCostServiceRepository;
+import com.cardcostapi.repository.IClearingCostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.*;
 public class ClearingCostCrudServiceImplTest {
 
     @Mock
-    private ClearingCostServiceRepository repository;
+    private IClearingCostRepository repository;
 
     @InjectMocks
     private ClearingCostCrudServiceImpl service;
