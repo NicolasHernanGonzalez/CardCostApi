@@ -34,7 +34,7 @@ public class BinDataController {
 
         BinCountryCost clearingCostByBin = binCountryCostService.getClearingCostByBin(bin);
 
-        return new ResponseEntity<>(clearingCostByBin, HttpStatus.FOUND);
+        return new ResponseEntity<>(clearingCostByBin, HttpStatus.OK);
     }
 
 }
