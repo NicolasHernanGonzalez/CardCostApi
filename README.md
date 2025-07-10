@@ -45,14 +45,14 @@ com.cardcostapi
 - **POST** `/api/payment-cards-cost`
 ```json
 {
-  "card_number": "45717360..."
+  "card_number": "4571736009872913"
 }
 ```
 **Response:**
 ```json
 {
-  "country": "US",
-  "cost": 5
+  "country": "AR",
+  "cost": 77
 }
 ```
 
@@ -65,15 +65,15 @@ com.cardcostapi
 - **Request Body**:
 ```json
 {
-  "country": "US",
-  "cost": 5.0
+  "country": "UY",
+  "cost": 90.1
 }
 ```
 - **Response (201 Created)**:
 ```json
 {
-  "country": "US",
-  "cost": 5.0
+  "country": "BR",
+  "cost": 8.1
 }
 ```
 
