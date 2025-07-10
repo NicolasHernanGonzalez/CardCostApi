@@ -42,7 +42,7 @@ public class BinLookupServiceImpl implements IBinLookupService {
         return null;
     }
 
-    public void binApiFallback(String bin){
+    public String binApiFallback(String bin){
         throw new ExternalServiceErrorException("BinData system is unstable, please try again later");
     }
 
