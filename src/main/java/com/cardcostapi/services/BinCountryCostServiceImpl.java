@@ -29,11 +29,18 @@ public class BinCountryCostServiceImpl implements IBinCountryCostService{
             throw new BusinessException("Clearing country not found: " +country+ " in binlist api");
         }
 
-        Optional<ClearingCost> cost = clearingCostCrudService.getClearingCostByCountryId(country)
-                .or(() -> clearingCostCrudService.getClearingCostByCountryId(DEFAULT_COUNTRY));
+        Optional<ClearingCost> costOptional = clearingCostCrudService.getClearingCostByCountryId(country);
 
-        return cost
-                .map(clearingCost -> new BinCountryCost(country, clearingCost.getClearingCost()))
+        String finalCountryUsed;
+        if (costOptional.isPresent()) {
+            finalCountryUsed = country;
+        } else {
+            costOptional = clearingCostCrudService.getClearingCostByCountryId(DEFAULT_COUNTRY);
+            finalCountryUsed = DEFAULT_COUNTRY;
+        }
+
+        return costOptional
+                .map(clearingCost -> new BinCountryCost(finalCountryUsed, clearingCost.getClearingCost()))
                 .orElseThrow(() -> new BusinessException("Clearing country costs not found for country '" + country + "' or default 'Others'"));
     }
 }

@@ -25,21 +25,26 @@ public class InMemoryRateLimitTest {
 
     @Test
     public void InMemoryRateLimit_Success() {
+        //SETUP
         this.properties.setLimit(5);
         this.properties.setDuration(1);
         this.rateLimit = new InMemoryRateLimit(properties);
+
+        //SUT
         boolean test = this.rateLimit.canProceed("test");
+
         assertTrue(test);
     }
 
     @Test
     public void InMemoryRateLimit_RateLimitExceeded() {
-
+        //SETUP
         this.properties.setLimit(5);
         this.properties.setDuration(1);
         this.rateLimit = new InMemoryRateLimit(properties);
         this.rateLimit.setAccessMap(accessMap);
 
+        //SUT & ASSERTS
         for (int cont = 0;cont< 5; cont++ ){
             assertTrue(rateLimit.canProceed("test"));
             rateLimit.registerKey("test");
@@ -52,7 +57,7 @@ public class InMemoryRateLimitTest {
 
     @Test
     public void InMemoryRateLimit_RemoveExpiredAccess() {
-
+        //SETUP
         this.properties.setDuration(2);
         this.properties.setLimit(5);
         this.rateLimit = new InMemoryRateLimit(properties);
@@ -63,13 +68,14 @@ public class InMemoryRateLimitTest {
 
         //Not expired access
         test.add(Instant.now().minus(Duration.ofHours(6)));
-
         //Expired Access to remove
         test.add(Instant.now().minus(Duration.ofHours(5)));
         test.add(Instant.now().minus(Duration.ofHours(1)));
 
+        //SUT
         this.rateLimit.canProceed("test");
 
+        //ASSERT
         //Only one not expired access
         int size = accessMap.get("test").size();
         assertEquals(1,size);

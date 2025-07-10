@@ -33,13 +33,14 @@ public class BinCountryCostServiceImplTest {
     }
 
     @Test
-    public void getClearingCostByBinSuccessTest() {
+    public void getClearingCostByBin_SuccessTest() {
 
         //SETUP
         String bin = "123456";
         String country = "AR";
+        Long id = 1L;
         Double cost = 10.0;
-        ClearingCost clearingCost = new ClearingCost(country, cost);
+        ClearingCost clearingCost = new ClearingCost(id,country, cost);
 
         //MOCK
         when(binLookupService.getCountryByBin(bin)).thenReturn(country);
@@ -54,7 +55,7 @@ public class BinCountryCostServiceImplTest {
     }
 
     @Test
-    public void getClearingCostByBinCountryNotFoundTest() {
+    public void getClearingCostByBin_CountryNotFoundTest() {
         //SETUP
         String bin = "123456";
 
@@ -68,7 +69,7 @@ public class BinCountryCostServiceImplTest {
     }
 
     @Test
-    public void getClearingCostByBinCostNotFoundTest() {
+    public void getClearingCostByBin_CostNotFoundTest() {
         //SETUP
         String bin = "123456";
         String country = "AR";
@@ -82,5 +83,26 @@ public class BinCountryCostServiceImplTest {
             binCountryCostService.getClearingCostByBin(bin);
         });
     }
+
+    @Test
+    public void getClearingCostByBin_UsingDefaultCountryTest() {
+        //SETUP
+        String bin = "123456";
+        String country = "AR";
+        String defaultCountry = "Others";
+        ClearingCost clearingCost = new ClearingCost(1L,country, 77D);
+        //MOCK
+        when(binLookupService.getCountryByBin(bin)).thenReturn(country);
+        when(clearingCostCrudService.getClearingCostByCountryId(country)).thenReturn(Optional.empty());
+        when(clearingCostCrudService.getClearingCostByCountryId(defaultCountry)).thenReturn(Optional.of(clearingCost));
+
+        //SUT
+        BinCountryCost binCountryCost = binCountryCostService.getClearingCostByBin(bin);
+
+        //ASSERTS
+        assertEquals(defaultCountry,binCountryCost.getCountry());
+        assertEquals(clearingCost.getClearingCost(),binCountryCost.getCost());
+    }
+
 
 }
