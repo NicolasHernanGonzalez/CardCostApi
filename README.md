@@ -1,66 +1,67 @@
 # 💳 Card Cost API
 
-## 🧾 Descripción
+## 🧾 Description
 
-La **Card Cost API** es una solución desarrollada en Java como parte del proceso técnico de Etraveli Group. Su objetivo es exponer una API REST que permita consultar el costo de clearing de una tarjeta de crédito/débito utilizando su número (PAN), así como realizar operaciones CRUD sobre la tabla de costos asociados a cada país emisor.
+**Card Cost API** Its goal is to expose a REST API that allows querying the clearing cost of a credit/debit card using its number (PAN), as well as performing CRUD operations on the table of costs associated with each issuing country.
 
 ---
 
-## ⚙️ Tecnologías y herramientas utilizadas
+## ⚙️ Technologies and Tools Used
 
 - **Java**: 17
 - **Spring Boot**: 3.x
-- **Maven**: Para gestión de dependencias y build
-- **Spring Web**: Para la creación de endpoints REST
-- **Spring Validation**: Para validaciones automáticas de entrada
-- **Spring Cache + Caffeine**: Caché con tamaño máximo y expiración para el bin lookup
-- **Resilience4j**: Circuit breaker para llamadas a servicios externos
-- **JUnit & Mockito**: Tests unitarios
-- **Testcontainers & SpringBootTest**: Tests de integración
-- **RestTemplate**: Cliente HTTP para llamar a la API pública de [https://binlist.net](https://binlist.net)
-- **H2 Database**: Base de datos en memoria para testing y desarrollo
-- **Docker (futuro)**: Se planifica contenerización para facilitar el despliegue
+- **Maven**: For dependency management and build
+- **Spring Web**: For creating REST endpoints
+- **Spring Validation**: For automatic input validations
+- **Spring Cache + Caffeine**: Caching with maximum size and expiration for BIN lookup
+- **Resilience4j**: Circuit breaker for external service calls
+- **JUnit & Mockito**: Unit tests
+- **Testcontainers & SpringBootTest**: Integration tests
+- **RestTemplate**: HTTP client to call the public API at [https://binlist.net](https://binlist.net)
+- **H2 Database**: In-memory database for testing and development
+- **Docker**: Containerization for easier deployment
 
 ---
 
-## 🏗️ Estructura del proyecto
+## 🏗️ Project Structure
 
 ```plaintext
 com.cardcostapi
-├── controller       # Endpoints REST
-├── service          # Lógica de negocio
-├── repository       # Acceso a base de datos
-├── domain/model     # Entidades y DTOs
-├── external         # Cliente a binlist.net
-├── config           # Configuraciones (cache, restTemplate, etc.)
-├── exception        # Manejo centralizado de errores
+├── controller       # REST endpoints
+├── service          # Business logic
+├── repository       # Database access
+├── domain/model     # Entities and DTOs
+├── external         # binlist.net client
+├── config           # Configuration (cache, restTemplate, etc.)
+├── exception        # Centralized error handling
 └── CardCostApiApplication.java
 ```
 
 ---
 
-## 🔧 Endpoints expuestos
+## 🔧 Exposed Endpoints
 
-### Consultar costo por número de tarjeta
+### Get cost by card number
 - **POST** `/api/payment-cards-cost`
 ```json
 {
   "card_number": "4571736009872913"
 }
 ```
-**Response:**
+**Response Body:**
 ```json
 {
   "country": "AR",
   "cost": 77
 }
 ```
+- **Response (200 OK)**:
 
 ---
 
-### CRUD sobre los costos por país
+### CRUD operations for country cost
 
-#### 📥 Crear nuevo costo
+#### 📥 Create new cost
 - **POST** `/api/cost`
 - **Request Body**:
 ```json
@@ -72,14 +73,14 @@ com.cardcostapi
 - **Response (201 Created)**:
 ```json
 {
-  "country": "BR",
-  "cost": 8.1
+  "country": "UY",
+  "cost": 90.1
 }
 ```
 
-#### 📖 Obtener costo por país
+#### 📖 Get cost by country
 - **GET** `/api/cost/{country}`
-- **Path Param**: código de país (ej. `US`, `GR`)
+- **Path Param**: country code (e.g. `US`, `GR`)
 - **Response (200 OK)**:
 ```json
 {
@@ -87,11 +88,11 @@ com.cardcostapi
   "cost": 5.0
 }
 ```
-- **Response (404 Not Found)** si no existe el país solicitado
+- **Response (404 Not Found)** if the country is not found
 
-#### 📝 Actualizar costo por país
+#### 📝 Update cost by ID
 - **PUT** `/api/cost/{id}`
-- **Path Param**: `id` interno de la entidad (numérico)
+- **Path Param**: internal ID of the entity (numeric)
 - **Request Body**:
 ```json
 {
@@ -106,41 +107,33 @@ com.cardcostapi
   "cost": 6.5
 }
 ```
-- **Response (404 Not Found)** si no existe
+- **Response (404 Not Found)** if not found
 
-#### ❌ Eliminar costo por país
+#### ❌ Delete cost by country
 - **DELETE** `/api/cost/{country}`
-- **Path Param**: código de país
+- **Path Param**: country code
 - **Response (204 No Content)**
 
 ---
 
-## 🚨 Manejo de errores
+## 🚨 Error Handling
 
-La API maneja errores de forma centralizada con respuestas consistentes. Algunos escenarios contemplados:
+The API handles errors in a centralized way with consistent responses. Some covered scenarios:
 
-- **400 Bad Request**: Datos inválidos o errores de validación.
-- **404 Not Found**: País o recurso no encontrado.
-- **409 Conflict**: Violación de integridad referencial o duplicados.
-- **424 Failed Dependency**: Error en dependencias externas (como binlist.net).
-
-Ejemplo de respuesta:
-```json
-{
-  "timestamp": "2025-07-09T22:15:30",
-  "message": "Country code is invalid"
-}
-```
+- **400 Bad Request**: Invalid data or validation errors.
+- **404 Not Found**: Country or resource not found.
+- **409 Conflict**: Integrity violation or duplicates.
+- **424 Failed Dependency**: Error in external dependencies (e.g. binlist.net).
 
 ---
 
-## 🚀 Instrucciones de ejecución
+## 🚀 How to Run
 
-### Requisitos previos
+### Prerequisites
 - Java 17
 - Maven 3.x
 
-### Ejecución local
+### Local execution
 ```bash
 mvn clean install
 mvn spring-boot:run
@@ -150,52 +143,76 @@ mvn spring-boot:run
 
 ## 🧪 Testing
 
-- Para correr todos los tests:
+To run all tests:
 ```bash
 mvn test
 ```
 
-- Se incluyen tests unitarios para lógica de negocio y tests de integración para endpoints y llamadas a binlist.net (mockeadas).
+Includes unit tests for business logic and integration tests for endpoints and mocked calls to binlist.net.
 
 ---
 
-## ⚠️ Consideraciones
-- El BIN por lo investigado es de 8 DIGITOS. (el enunciado dice que puede ser entre 6 y 8).
-- Se incluye **cache con Caffeine** para evitar múltiples llamadas al endpoint de binlist por el mismo BIN, con configuración de tamaño máximo (`1000`) y expiración (`24h`).
-- Se implementa un **Circuit Breaker (Resilience4j)** para proteger la API ante fallos externos.
-- Validaciones exhaustivas de entrada y manejo centralizado de excepciones.
-- Arquitectura orientada a separación de responsabilidades (controller, service, repository, external client).
-- Uso de **H2 in-memory DB** para facilitar testing y desarrollo rápido.
+## ⚠️ Notes
+- The BIN is assumed to be 8 digits long (although the exercise states 6). Validation is enforced accordingly.
 
 ---
 
-## 📈 Escalabilidad y mejoras futuras
+## 📈 Scalability and Future Improvements
 
-- Preparado para escalar horizontalmente (stateless, sin sesión de usuario ni estado en memoria)
-- Uso de **Spring Cache con Caffeine**, configurable y con políticas de expiración para mitigar la carga externa
-- La capa de persistencia fue desacoplada mediante una interfaz (`ClearingCostRepository`), lo que permite reemplazar fácilmente la implementación actual basada en JPA por otras fuentes como Redis, DynamoDB o servicios externos, sin modificar la lógica del servicio.
-- El diseño sigue principios SOLID, en particular **Open/Closed** y **Dependency Inversion**, lo que facilita la extensibilidad y el testing.
-- **Separación de responsabilidades clara** (Controller, Service, Repository, External Client)
-- Fácil de contenerizar (Docker-ready) y listo para integrarse en pipelines CI/CD
+- Ready for horizontal scaling (stateless, no session or in-memory state)
+- **Spring Cache with Caffeine** used to reduce load on external service with configurable expiration and max size
+- Persistence layer decoupled using interface (`ClearingCostRepository`), allowing easy replacement of JPA with Redis, DynamoDB, or other services without changing business logic
+- Follows SOLID principles, especially **Open/Closed** and **Dependency Inversion**, to facilitate extensibility and testing
+- **Clear separation of responsibilities** (Controller, Service, Repository, External Client)
 
 ---
 
-## 🐳 Uso con Docker Compose
+### 🔐 Resilience and Traffic Control
 
-Si tenés Docker y Docker Compose instalados, podés levantar la aplicación fácilmente con:
+The API uses two complementary mechanisms for stability and resilience:
+
+1. **Rate Limiter**  
+   Limits the number of requests to the external BIN lookup service [https://lookup.binlist.net] within a given period to prevent **429 Too Many Requests** errors.
+
+   - **Time window**: 1 hour (configurable)
+   - **Call limit**: 5 per key (configurable)
+   - **Exception thrown**: `TooManyRequestsException` with HTTP status 429
+
+   Currently implemented **in-memory**, but the design allows easy replacement with distributed solutions like Redis, Bucket4j, etc.
+
+2. **Circuit Breaker (Resilience4j)**  
+   Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the API from other external failures like timeouts, connection issues, or unexpected responses. It opens the circuit after detecting repeated failures to avoid system overload.
+
+   #### Key Configuration:
+
+   - `minimumNumberOfCalls=5`: Requires at least 5 calls to evaluate failures.
+   - `failureRateThreshold=50`: If 50% of calls fail, the circuit opens.
+   - `slidingWindowSize=10`: Sliding window of 10 calls for failure evaluation.
+   - `waitDurationInOpenState=30s`: Stays open for 30 seconds once triggered.
+   - `permittedNumberOfCallsInHalfOpenState=2`: Allows 2 trial calls in half-open state.
+   - `automaticTransitionFromOpenToHalfOpenEnabled=true`: Automatically switches to half-open mode.
+   - `ignore-exceptions=com.ng.exceptions.TooManyRequestsException`: Ignores 429 errors managed by the rate limiter.
+
+   ⚠️ The Circuit Breaker is primarily designed to handle external failures, such as timeouts, connection errors, and unexpected HTTP responses (e.g., 5xx).
+
+---
+
+## 🐳 Running with Docker Compose
+
+If you have Docker and Docker Compose installed, you can easily run the app with:
 
 ```bash
 docker-compose up --build
 ```
 
-Esto construirá la imagen a partir del `Dockerfile` y expondrá la API en:
+This builds the image from the `Dockerfile` and exposes the API at:
 
 > http://localhost:8080
 
-No se requiere base de datos externa, ya que la aplicación utiliza **H2 embebido** para persistencia temporal.
+No external DB is required since the app uses an **embedded H2 database** for temporary persistence.
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
-- **Nombre**: Nicolas Gonzalez
+- **Name**: Nicolas Gonzalez
 
 ---
