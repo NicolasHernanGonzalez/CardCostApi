@@ -173,9 +173,9 @@ mvn test
 
 - Preparado para escalar horizontalmente (stateless, sin sesión de usuario ni estado en memoria)
 - Uso de **Spring Cache con Caffeine**, configurable y con políticas de expiración para mitigar la carga externa
+- La capa de persistencia fue desacoplada mediante una interfaz (`ClearingCostRepository`), lo que permite reemplazar fácilmente la implementación actual basada en JPA por otras fuentes como Redis, DynamoDB o servicios externos, sin modificar la lógica del servicio.
+- El diseño sigue principios SOLID, en particular **Open/Closed** y **Dependency Inversion**, lo que facilita la extensibilidad y el testing.
 - **Separación de responsabilidades clara** (Controller, Service, Repository, External Client)
-- Código desacoplado y **abierto a la extensión según el principio Open/Closed (O de SOLID)**
-- Posibilidad de migrar `RestTemplate` a **`WebClient` (reactivo)** para manejar cargas más altas con menor uso de threads
 - Fácil de contenerizar (Docker-ready) y listo para integrarse en pipelines CI/CD
 
 ---
