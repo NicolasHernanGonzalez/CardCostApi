@@ -80,8 +80,10 @@ public class BinLookupServiceImplTest {
         when(binLookupClient.getBinData(bin)).thenReturn(binDataResponse);
         doNothing().when(rateLimitService).registerKey(anyString());
 
+        //SUT
         String countryByBin = binLookupService.getCountryByBin(bin);
 
+        //ASSERT
         assertNull(countryByBin);
     }
 
@@ -96,8 +98,10 @@ public class BinLookupServiceImplTest {
         when(binLookupClient.getBinData(bin)).thenReturn(null);
         doNothing().when(rateLimitService).registerKey(anyString());
 
+        //SUT
         String countryByBin = binLookupService.getCountryByBin(bin);
 
+        //ASSERT
         assertNull(countryByBin);
     }
 

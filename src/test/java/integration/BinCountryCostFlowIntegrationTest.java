@@ -29,7 +29,7 @@ public class BinCountryCostFlowIntegrationTest {
     private IBinLookupService binLookupService;
 
     @Test
-    public void AllClearingCostFlow() throws Exception {
+    public void AllClearingCostFlow_Success() throws Exception {
 
         //Setup
         String payload = """
@@ -66,4 +66,41 @@ public class BinCountryCostFlowIntegrationTest {
         verify(binLookupService).getCountryByBin("12345678");
     }
 
+    @Test
+    public void AllClearingCostFlow_DefaultCountry() throws Exception {
+
+        //Setup
+        String payload = """
+            {
+              "country": "Others",
+              "cost": 77
+            }
+        """;
+
+        //Sut && Assert
+        mockMvc.perform(post("/api/cost")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isCreated());
+
+        //Mock
+        when(binLookupService.getCountryByBin("45717562")).thenReturn("AR");
+
+        String panPayload = """
+            {
+              "card_number": "457175621111111"
+            }
+        """;
+
+        //Sut
+        mockMvc.perform(post("/payment-cards-cost")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(panPayload))
+        //Verify
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.country").value("Others"))
+                .andExpect(jsonPath("$.cost").value(77));
+
+        verify(binLookupService).getCountryByBin("45717562");
+    }
 }
