@@ -38,7 +38,7 @@ public class BinLookupServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        cache = new InMemoryCache();
+        cache = new InMemoryCache(60,1000);
         ILock lock = new InMemoryLock();
         MockitoAnnotations.openMocks(this);
         binLookupService = new BinLookupServiceImpl(binLookupClient, rateLimitService, cache,lock);

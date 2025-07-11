@@ -1,5 +1,6 @@
 package com.cardcostapi.infrastructure;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -13,10 +14,10 @@ public class InMemoryCache implements ICache{
 
     private final Cache<String, String> cache;
 
-    public InMemoryCache() {
+    public InMemoryCache(@Value("${cache.ttl.minutes}") long ttlMinutes, @Value("${cache.max.size}") long size) {
         this.cache = CacheBuilder.newBuilder()
-                .expireAfterWrite(60, TimeUnit.MINUTES)
-                .maximumSize(1000)
+                .expireAfterWrite(ttlMinutes, TimeUnit.MINUTES)
+                .maximumSize(size)
                 .build();
     }
 
