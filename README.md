@@ -141,6 +141,24 @@ mvn spring-boot:run
 
 ---
 
+
+### 🥪 Profiles and External Dependency Simulation
+
+By default, the app uses the real `binlist.net` API.
+
+To simulate the external service and avoid real HTTP calls, you can activate the Spring profile `fake_client`:
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=fake_client
+```
+
+The fake client:
+- Applies the same **rate-limiting** and **circuit breaker** constraints
+- Enforces the same SLA as the real API: **5 requests per hour**
+- Useful for **offline development**, **resilience testing**, or when the real service is down
+
+---
+
 ## 🧪 Testing
 
 To run all tests:
@@ -159,8 +177,7 @@ Includes unit tests for business logic and integration tests for endpoints and m
 
 ## 📈 Scalability and Future Improvements
 
-- Ready for horizontal scaling (stateless, no session or in-memory state)
-- **Spring Cache with Caffeine** used to reduce load on external service with configurable expiration and max size
+- Designed for scalability, but current implementation uses in-memory cache, locks, and rate limiter which should be adapted for distributed environments before horizontal scaling.
 - Persistence layer decoupled using interface (`ClearingCostRepository`), allowing easy replacement of JPA with Redis, DynamoDB, or other services without changing business logic
 - Follows SOLID principles, especially **Open/Closed** and **Dependency Inversion**, to facilitate extensibility and testing
 - **Clear separation of responsibilities** (Controller, Service, Repository, External Client)
