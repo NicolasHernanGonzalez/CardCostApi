@@ -23,4 +23,12 @@ public class BinDataResponse {
         private String alpha2;
     }
 
+    public String getCountryString() {
+        return this.getCountry().getAlpha2();
+    }
+
+    public boolean isValid() {
+        return this.getCountry() != null && this.getCountry().getAlpha2() != null;
+    }
+
 }

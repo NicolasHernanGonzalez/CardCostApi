@@ -13,20 +13,20 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Component
 public class InMemoryRateLimit implements IRateLimitService {
 
-    private Map<String, Queue<Instant>> accessMap;
-    private int limit;
-    private Duration window;
-
+    private final Map<String, Queue<Instant>> accessMap;
+    private final Map<String, Object> locks;
+    private final int limit;
+    private final Duration window;
 
     public InMemoryRateLimit(InMemoryRateLimitConfig properties) {
-        this.limit = properties.getLimit();
-        this.window = Duration.ofHours(properties.getDuration());
+        this.limit = properties.getLimit();                         // e.g. 5
+        this.window = Duration.ofHours(properties.getDuration());   // e.g. 1
         this.accessMap = new ConcurrentHashMap<>();
+        this.locks = new ConcurrentHashMap<>();
     }
 
     @Override
     public boolean canProceed(String key) {
-
         Queue<Instant> timestamps = accessMap.get(key);
 
         if (timestamps == null) {
@@ -34,10 +34,8 @@ public class InMemoryRateLimit implements IRateLimitService {
             accessMap.put(key, timestamps);
         }
 
-        //Hoy menos la ventana de tiempo
         Instant cutoff = Instant.now().minus(window);
 
-        //Limpia la ventana de tiempo con los vencidos
         while (!timestamps.isEmpty() && timestamps.peek().isBefore(cutoff)) {
             timestamps.poll();
         }
@@ -56,13 +54,13 @@ public class InMemoryRateLimit implements IRateLimitService {
         timestamps.offer(Instant.now());
     }
 
-    //only for testing purposes
+    // Solo para testing
     public Map<String, Queue<Instant>> getAccessMap() {
         return accessMap;
     }
 
     public void setAccessMap(Map<String, Queue<Instant>> accessMap) {
-        this.accessMap = accessMap;
+        this.accessMap.clear();
+        this.accessMap.putAll(accessMap);
     }
-
 }

@@ -90,9 +90,9 @@ com.cardcostapi
 ```
 - **Response (404 Not Found)** if the country is not found
 
-#### 📝 Update cost by ID
-- **PUT** `/api/cost/{id}`
-- **Path Param**: internal ID of the entity (numeric)
+#### 📝 Update cost by country
+- **PUT** `/api/cost/{country}`
+- **Path Param**: country code (e.g. `US`, `GR`)
 - **Request Body**:
 ```json
 {
@@ -141,6 +141,24 @@ mvn spring-boot:run
 
 ---
 
+
+### 🥪 Profiles and External Dependency Simulation
+
+By default, the app uses the real `binlist.net` API.
+
+To simulate the external service and avoid real HTTP calls, you can activate the Spring profile `fake_client`:
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=fake_client
+```
+
+The fake client:
+- Applies the same **rate-limiting** and **circuit breaker** constraints
+- Enforces the same SLA as the real API: **5 requests per hour**
+- Useful for **offline development**, **resilience testing**, or when the real service is down
+
+---
+
 ## 🧪 Testing
 
 To run all tests:
@@ -159,29 +177,28 @@ Includes unit tests for business logic and integration tests for endpoints and m
 
 ## 📈 Scalability and Future Improvements
 
-- Ready for horizontal scaling (stateless, no session or in-memory state)
-- **Spring Cache with Caffeine** used to reduce load on external service with configurable expiration and max size
+- Designed for scalability, but current implementation uses in-memory cache, locks, and rate limiter which should be adapted for distributed environments before horizontal scaling.
 - Persistence layer decoupled using interface (`ClearingCostRepository`), allowing easy replacement of JPA with Redis, DynamoDB, or other services without changing business logic
 - Follows SOLID principles, especially **Open/Closed** and **Dependency Inversion**, to facilitate extensibility and testing
 - **Clear separation of responsibilities** (Controller, Service, Repository, External Client)
 
 ---
 
-### 🔐 Resilience and Traffic Control
+## 🔒 Concurrency, Caching, Resilience Strategy
 
-The API uses two complementary mechanisms for stability and resilience:
+To prevent multiple concurrent requests from hitting the external provider (`https://lookup.binlist.net`), a combination of in-memory caching, per-BIN locking, rate limiting, and circuit breaking has been implemented:
 
-1. **Rate Limiter**  
-   Limits the number of requests to the external BIN lookup service [https://lookup.binlist.net] within a given period to prevent **429 Too Many Requests** errors.
+- **In-memory cache:** A `ConcurrentHashMap` is used as a simple cache. It stores both valid responses (country codes) and a `"NOT_FOUND"` marker for invalid BINs, to avoid redundant external calls.
 
-   - **Time window**: 1 hour (configurable)
-   - **Call limit**: 5 per key (configurable)
-   - **Exception thrown**: `TooManyRequestsException` with HTTP status 429
+- **Per-BIN locks:** A secondary `ConcurrentHashMap<String, Object>` is used to synchronize concurrent requests for the same BIN. This ensures that only one thread makes the external API call, while others wait for the cached response.
 
-   Currently implemented **in-memory**, but the design allows easy replacement with distributed solutions like Redis, Bucket4j, etc.
+- **Custom Rate Limiter:** A sliding window rate limiter prevents exceeding a configurable number of requests per minute to the external API.
 
-2. **Circuit Breaker (Resilience4j)**  
-   Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the API from other external failures like timeouts, connection issues, or unexpected responses. It opens the circuit after detecting repeated failures to avoid system overload.
+- **Circuit Breaker** The external call is protected with a `@CircuitBreaker` (Resilience4j). If the provider starts failing (e.g., too many `5xx/4xx` errors), the breaker opens and temporarily blocks access to prevent further overload.
+This strategy reduces external calls, protects the provider, and ensures a reliable and consistent experience under high concurrency.
+Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the API from other external failures like timeouts, connection issues, or unexpected responses. It opens the circuit after detecting repeated failures to avoid system overload.
+
+ <img width="200" height="500" alt="image" src="https://github.com/user-attachments/assets/278e3776-6c23-4954-a424-2cc1cf2196c4" />
 
    #### Key Configuration:
 
@@ -192,10 +209,9 @@ The API uses two complementary mechanisms for stability and resilience:
    - `permittedNumberOfCallsInHalfOpenState=2`: Allows 2 trial calls in half-open state.
    - `automaticTransitionFromOpenToHalfOpenEnabled=true`: Automatically switches to half-open mode.
    - `ignore-exceptions=com.ng.exceptions.TooManyRequestsException`: Ignores 429 errors managed by the rate limiter.
-
-   ⚠️ The Circuit Breaker is primarily designed to handle external failures, such as timeouts, connection errors, and unexpected HTTP responses (e.g., 5xx).
-
 ---
+
+
 
 ## 🐳 Running with Docker Compose
 
