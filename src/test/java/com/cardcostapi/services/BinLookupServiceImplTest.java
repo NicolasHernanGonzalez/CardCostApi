@@ -1,6 +1,7 @@
 package com.cardcostapi.services;
 
 
+import com.cardcostapi.exception.ExternalServiceErrorException;
 import com.cardcostapi.exception.TooManyRequestsException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
@@ -10,10 +11,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class BinLookupServiceImplTest {
 
@@ -105,4 +108,101 @@ public class BinLookupServiceImplTest {
         assertNull(countryByBin);
     }
 
+    @Test
+    public void testGetCountryByBin_CacheHit() {
+        // SETUP
+        String bin = "123456";
+        Map<String, String> cache = new ConcurrentHashMap<>();
+        cache.put(bin, "US");
+        binLookupService.setCache(cache);
+
+        // SUT
+        String result = binLookupService.getCountryByBin(bin);
+
+        // ASSERT
+        assertEquals("US", result);
+        verifyNoInteractions(binLookupClient, rateLimitService);
+    }
+    @Test
+    public void testGetCountryByBin_CacheNotFound() {
+        // SETUP
+        String bin = "654321";
+        Map<String, String> cache = new ConcurrentHashMap<>();
+        cache.put(bin, "NOT_FOUND");
+        binLookupService.setCache(cache);
+
+        // MOCK
+        when(rateLimitService.canProceed("binlist")).thenReturn(true);
+        when(binLookupClient.getBinData(bin)).thenReturn(null);
+
+        // SUT
+        String result = binLookupService.getCountryByBin(bin);
+
+        // ASSERT
+        assertNull(result);
+        verify(binLookupClient).getBinData(bin);
+    }
+
+
+    @Test
+    public void testGetCountryByBin_CacheMiss_ValidResponse() {
+        // SETUP
+        String bin = "789012";
+        BinDataResponse response = mock(BinDataResponse.class);
+
+        // MOCK
+        when(rateLimitService.canProceed("binlist")).thenReturn(true);
+        when(response.isValid()).thenReturn(true);
+        when(response.getCountryString()).thenReturn("AR");
+        when(binLookupClient.getBinData(bin)).thenReturn(response);
+
+        // SUT
+        String result = binLookupService.getCountryByBin(bin);
+
+        // ASSERT
+        assertEquals("AR", result);
+        assertEquals("AR", binLookupService.getCache().get(bin));
+        verify(rateLimitService).registerKey("binlist");
+    }
+
+    @Test
+    public void testGetCountryByBin_CacheMiss_NullResponse() {
+        // SETUP
+        String bin = "888888";
+
+        // MOCK
+        when(rateLimitService.canProceed("binlist")).thenReturn(true);
+        when(binLookupClient.getBinData(bin)).thenReturn(null);
+
+        // SUT
+        String result = binLookupService.getCountryByBin(bin);
+
+        // ASSERT
+        assertNull(result);
+        assertEquals("NOT_FOUND", binLookupService.getCache().get(bin));
+        verify(rateLimitService).registerKey("binlist");
+    }
+
+    @Test
+    public void testGetCountryByBin_RateLimitExceeded() {
+        // SETUP
+        String bin = "999999";
+
+        // MOCK
+        when(rateLimitService.canProceed("binlist")).thenReturn(false);
+
+        // SUT + ASSERT
+        assertThrows(TooManyRequestsException.class, () -> binLookupService.getCountryByBin(bin));
+        verifyNoInteractions(binLookupClient);
+    }
+
+    @Test
+    public void testFallbackMethod() {
+        // SUT + ASSERT
+        ExternalServiceErrorException ex = assertThrows(
+                ExternalServiceErrorException.class,
+                () -> binLookupService.binApiFallback("123456", new RuntimeException("boom"))
+        );
+        assertTrue(ex.getMessage().contains("unstable"));
+    }
 }

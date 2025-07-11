@@ -71,7 +71,7 @@ public class ClearingCostIntegrationTest {
         }
     """;
 
-        mockMvc.perform(put("/api/cost/" + id)
+        mockMvc.perform(put("/api/cost/BR")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatePayload))
                 .andExpect(status().isOk())
