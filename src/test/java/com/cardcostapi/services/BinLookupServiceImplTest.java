@@ -2,23 +2,18 @@ package com.cardcostapi.services;
 
 
 import com.cardcostapi.exception.ExternalServiceErrorException;
-import com.cardcostapi.exception.TooManyRequestsException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
-import com.cardcostapi.infrastructure.ILock;
-import com.cardcostapi.infrastructure.InMemoryCache;
 import com.cardcostapi.infrastructure.ICache;
-import com.cardcostapi.infrastructure.InMemoryLock;
+import com.cardcostapi.infrastructure.InMemoryCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -33,15 +28,13 @@ public class BinLookupServiceImplTest {
     private IRateLimitService rateLimitService;
     private ICache cache;
 
-    //@InjectMocks
-    private BinLookupServiceImpl binLookupService;
+    private BinLookupServiceQueueImpl binLookupService;
 
     @BeforeEach
     void setUp() {
         cache = new InMemoryCache(60,1000);
-        ILock lock = new InMemoryLock();
         MockitoAnnotations.openMocks(this);
-        binLookupService = new BinLookupServiceImpl(binLookupClient, rateLimitService, cache,lock);
+        binLookupService = new BinLookupServiceQueueImpl(cache,binLookupClient, rateLimitService);
     }
 
     @Test
@@ -74,7 +67,7 @@ public class BinLookupServiceImplTest {
         when(rateLimitService.canProceed(anyString())).thenReturn(false);
 
         //SUT
-        assertThrows(TooManyRequestsException.class, () -> {
+        assertThrows(ExecutionException.class, () -> {
             String countryByBin = binLookupService.getCountryByBin(bin);
         });
     }
@@ -200,7 +193,7 @@ public class BinLookupServiceImplTest {
         when(rateLimitService.canProceed("binlist")).thenReturn(false);
 
         // SUT + ASSERT
-        assertThrows(TooManyRequestsException.class, () -> binLookupService.getCountryByBin(bin));
+        assertThrows(ExecutionException.class, () -> binLookupService.getCountryByBin(bin));
         verifyNoInteractions(binLookupClient);
     }
 
