@@ -5,7 +5,6 @@ import com.cardcostapi.exception.TooManyRequestsException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -24,7 +23,7 @@ public class BinLookupServiceImpl implements IBinLookupService {
     // Locks por BIN para evitar múltiples llamadas concurrentes al mismo tiempo
     private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
-    public BinLookupServiceImpl(@Qualifier("RealBinClient")IBinLookupClient binLookupClient, IRateLimitService rateLimitService) {
+    public BinLookupServiceImpl(IBinLookupClient binLookupClient, IRateLimitService rateLimitService) {
         this.binLookupClient = binLookupClient;
         this.rateLimitService = rateLimitService;
     }
@@ -82,7 +81,7 @@ public class BinLookupServiceImpl implements IBinLookupService {
     }
 
     public String binApiFallback(String bin, Throwable ex){
-        throw new ExternalServiceErrorException("BinData system is unstable, please try again later.Bin: " + bin + ". " + ex.getMessage());
+        throw new ExternalServiceErrorException("BinData system is unstable, please try again later.Bin: " + bin + ". " + ex.getCause());
     }
 
     //for test purposes

@@ -4,6 +4,8 @@ import com.cardcostapi.exception.TooManyRequestsException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -11,7 +13,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 @Component
-@Qualifier("fakeBinClient")
+@Primary
+@Profile("fake_client")
 public class FakeBinLookupClient implements IBinLookupClient {
 
     private final int maxRequests = 5;
@@ -33,6 +36,6 @@ public class FakeBinLookupClient implements IBinLookupClient {
 
         accessTimestamps.offer(now);
 
-        return new BinDataResponse(new BinDataResponse.Country("US"));
+        return new BinDataResponse(new BinDataResponse.Country("AR"));
     }
 }
