@@ -26,11 +26,6 @@ public class InMemoryCache implements ICache{
     }
 
     @Override
-    public void remove(String key) {
-        this.cache.invalidate(key);
-    }
-
-    @Override
     public void clear() {
         this.cache.invalidateAll();
     }

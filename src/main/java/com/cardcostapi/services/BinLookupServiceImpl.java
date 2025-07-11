@@ -20,10 +20,6 @@ public class BinLookupServiceImpl implements IBinLookupService {
 
     private static final String NOT_FOUND = "NOT_FOUND";
 
-    // Cache simple en memoria
-    private final ConcurrentHashMap<String, String> cache2 = new ConcurrentHashMap<>();
-
-
     // Locks por BIN para evitar múltiples llamadas concurrentes al mismo tiempo
     private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
