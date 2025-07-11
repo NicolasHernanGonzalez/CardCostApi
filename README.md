@@ -13,8 +13,8 @@
 - **Maven**: For dependency management and build
 - **Spring Web**: For creating REST endpoints
 - **Spring Validation**: For automatic input validations
-- **Spring Cache + Caffeine**: Caching with maximum size and expiration for BIN lookup
-- **Resilience4j**: Circuit breaker for external service calls
+- **Guava Cache**: Caching with expiration for BIN lookup
+- **Resilience4j**: Circuit breaker for external service calls (BIN) 
 - **JUnit & Mockito**: Unit tests
 - **Testcontainers & SpringBootTest**: Integration tests
 - **RestTemplate**: HTTP client to call the public API at [https://binlist.net](https://binlist.net)
