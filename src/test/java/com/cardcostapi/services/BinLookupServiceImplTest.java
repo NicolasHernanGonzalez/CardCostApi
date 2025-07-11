@@ -5,8 +5,10 @@ import com.cardcostapi.exception.ExternalServiceErrorException;
 import com.cardcostapi.exception.TooManyRequestsException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
+import com.cardcostapi.infrastructure.ILock;
 import com.cardcostapi.infrastructure.InMemoryCache;
 import com.cardcostapi.infrastructure.ICache;
+import com.cardcostapi.infrastructure.InMemoryLock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -29,7 +31,6 @@ public class BinLookupServiceImplTest {
 
     @Mock
     private IRateLimitService rateLimitService;
-
     private ICache cache;
 
     //@InjectMocks
@@ -38,8 +39,9 @@ public class BinLookupServiceImplTest {
     @BeforeEach
     void setUp() {
         cache = new InMemoryCache();
+        ILock lock = new InMemoryLock();
         MockitoAnnotations.openMocks(this);
-        binLookupService = new BinLookupServiceImpl(binLookupClient, rateLimitService, cache);
+        binLookupService = new BinLookupServiceImpl(binLookupClient, rateLimitService, cache,lock);
     }
 
     @Test
