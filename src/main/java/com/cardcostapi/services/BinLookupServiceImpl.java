@@ -4,6 +4,7 @@ import com.cardcostapi.exception.ExternalServiceErrorException;
 import com.cardcostapi.exception.TooManyRequestsException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
+import com.cardcostapi.infrastructure.ICache;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Component;
 
@@ -15,17 +16,17 @@ public class BinLookupServiceImpl implements IBinLookupService {
 
     private final IBinLookupClient binLookupClient;
     private final IRateLimitService rateLimitService;
-    private static final String NOT_FOUND = "NOT_FOUND";
+    private final ICache cache;
 
-    // Cache simple en memoria
-    private final ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<>();
+    private static final String NOT_FOUND = "NOT_FOUND";
 
     // Locks por BIN para evitar múltiples llamadas concurrentes al mismo tiempo
     private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
-    public BinLookupServiceImpl(IBinLookupClient binLookupClient, IRateLimitService rateLimitService) {
+    public BinLookupServiceImpl(IBinLookupClient binLookupClient, IRateLimitService rateLimitService, ICache cache) {
         this.binLookupClient = binLookupClient;
         this.rateLimitService = rateLimitService;
+        this.cache = cache;
     }
 
     @Override
@@ -91,6 +92,6 @@ public class BinLookupServiceImpl implements IBinLookupService {
     }
 
     public Map<String, String> getCache() {
-        return this.cache;
+        return this.cache.getCache();
     }
 }

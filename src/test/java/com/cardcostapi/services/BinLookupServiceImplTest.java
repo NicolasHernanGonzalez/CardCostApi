@@ -5,11 +5,15 @@ import com.cardcostapi.exception.ExternalServiceErrorException;
 import com.cardcostapi.exception.TooManyRequestsException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
+import com.cardcostapi.infrastructure.InMemoryCache;
+import com.cardcostapi.infrastructure.ICache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,13 +30,16 @@ public class BinLookupServiceImplTest {
     @Mock
     private IRateLimitService rateLimitService;
 
+    private ICache cache;
+
     //@InjectMocks
     private BinLookupServiceImpl binLookupService;
 
     @BeforeEach
     void setUp() {
+        cache = new InMemoryCache();
         MockitoAnnotations.openMocks(this);
-        binLookupService = new BinLookupServiceImpl(binLookupClient, rateLimitService);
+        binLookupService = new BinLookupServiceImpl(binLookupClient, rateLimitService, cache);
     }
 
     @Test
@@ -127,9 +134,8 @@ public class BinLookupServiceImplTest {
     public void testGetCountryByBin_CacheNotFound() {
         // SETUP
         String bin = "654321";
-        Map<String, String> cache = new ConcurrentHashMap<>();
-        cache.put(bin, "NOT_FOUND");
-        binLookupService.setCache(cache);
+        this.cache.put(bin, "NOT_FOUND");
+        binLookupService.setCache(cache.getCache());
 
         // MOCK
         when(rateLimitService.canProceed("binlist")).thenReturn(true);
@@ -166,7 +172,7 @@ public class BinLookupServiceImplTest {
     }
 
     @Test
-    public void testGetCountryByBin_CacheMiss_NullResponse() {
+    public void testGetCountryByBin_CacheMissNullResponse() {
         // SETUP
         String bin = "888888";
 
