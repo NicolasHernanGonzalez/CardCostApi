@@ -1,10 +1,12 @@
 package com.cardcostapi.external;
 
 import com.cardcostapi.config.BinLookupApiConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@Qualifier("RealBinClient")
 public class BinLookupClientImpl implements IBinLookupClient {
 
     private final RestTemplate restTemplate;

@@ -9,6 +9,8 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryRateLimitTest {
@@ -57,27 +59,26 @@ public class InMemoryRateLimitTest {
 
     @Test
     public void InMemoryRateLimit_RemoveExpiredAccess() {
-        //SETUP
-        this.properties.setDuration(2);
+        // SETUP
+        this.properties.setDuration(2); // duración en horas
         this.properties.setLimit(5);
         this.rateLimit = new InMemoryRateLimit(properties);
-        this.rateLimit.setAccessMap(accessMap);
+        this.accessMap = new ConcurrentHashMap<>();
+
+        // Creamos la queue con accesos
+        Queue<Instant> queue = new ConcurrentLinkedQueue<>();
+        queue.add(Instant.now().minus(Duration.ofHours(6))); // expired
+        queue.add(Instant.now().minus(Duration.ofHours(5))); // expired
+        queue.add(Instant.now().minus(Duration.ofHours(1))); // not expired
+
+        this.accessMap.put("test", queue);
+        this.rateLimit.setAccessMap(accessMap); // importante hacer esto después
+
+        // SUT
         this.rateLimit.canProceed("test");
 
-        Queue<Instant> test = this.accessMap.get("test");
-
-        //Not expired access
-        test.add(Instant.now().minus(Duration.ofHours(6)));
-        //Expired Access to remove
-        test.add(Instant.now().minus(Duration.ofHours(5)));
-        test.add(Instant.now().minus(Duration.ofHours(1)));
-
-        //SUT
-        this.rateLimit.canProceed("test");
-
-        //ASSERT
-        //Only one not expired access
+        // ASSERT
         int size = accessMap.get("test").size();
-        assertEquals(1,size);
+        assertEquals(1, size);
     }
 }

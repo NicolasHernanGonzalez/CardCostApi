@@ -45,4 +45,13 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(body);
     }
+
+    @ExceptionHandler(ExternalServiceErrorException.class)
+    public ResponseEntity<Map<String, Object>> externalServiceError(ExternalServiceErrorException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(body);
+    }
+
 }
