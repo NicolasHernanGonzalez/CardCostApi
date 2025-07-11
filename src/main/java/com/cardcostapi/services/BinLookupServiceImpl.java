@@ -52,7 +52,7 @@ public class BinLookupServiceImpl implements IBinLookupService {
     private String fetchAndCache(String bin) {
         //Check RL
         if (!rateLimitService.canProceed("binlist")) {
-            throw new TooManyRequestsException("Rate limit for binlist exceeded");
+            throw new TooManyRequestsException("Rate limit for binlist exceeded. Try again later");
         }
         //PROTECTED RESOURCE
         BinDataResponse binData = binLookupClient.getBinData(bin);
@@ -87,6 +87,11 @@ public class BinLookupServiceImpl implements IBinLookupService {
     }
 
     public String binApiFallback(String bin, Throwable ex){
+
+        if (ex instanceof TooManyRequestsException) {
+            throw (TooManyRequestsException) ex;
+        }
+
         throw new ExternalServiceErrorException("BinData system is unstable, please try again later.Bin: " + bin + ". " + ex.getCause());
     }
 

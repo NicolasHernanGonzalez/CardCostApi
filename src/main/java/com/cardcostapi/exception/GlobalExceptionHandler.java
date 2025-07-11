@@ -46,6 +46,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(body);
     }
 
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCountryCode(TooManyRequestsException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body);
+    }
+
     @ExceptionHandler(ExternalServiceErrorException.class)
     public ResponseEntity<Map<String, Object>> externalServiceError(ExternalServiceErrorException ex) {
         Map<String, Object> body = new HashMap<>();
