@@ -22,9 +22,9 @@ public class ClearingCostCrudController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ClearingCost> updateClearingCost(@PathVariable Long id, @Valid @RequestBody ClearingCost clearingCost) {
-        clearingCost.setId(id);
+    @PutMapping("/{country}")
+    public ResponseEntity<ClearingCost> updateClearingCostByCountry(@PathVariable String country, @Valid @RequestBody ClearingCost clearingCost) {
+        clearingCost.setCountry(country);
         ClearingCost response = clearingCostService.updateClearingCost(clearingCost);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
