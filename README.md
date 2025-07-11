@@ -167,21 +167,21 @@ Includes unit tests for business logic and integration tests for endpoints and m
 
 ---
 
-### 🔐 Resilience and Traffic Control
+## 🔒 Concurrency, Caching, Resilience Strategy
 
-The API uses two complementary mechanisms for stability and resilience:
+To prevent multiple concurrent requests from hitting the external provider (`https://lookup.binlist.net`), a combination of in-memory caching, per-BIN locking, rate limiting, and circuit breaking has been implemented:
 
-1. **Rate Limiter**  
-   Limits the number of requests to the external BIN lookup service [https://lookup.binlist.net] within a given period to prevent **429 Too Many Requests** errors.
+- **In-memory cache:** A `ConcurrentHashMap` is used as a simple cache. It stores both valid responses (country codes) and a `"NOT_FOUND"` marker for invalid BINs, to avoid redundant external calls.
 
-   - **Time window**: 1 hour (configurable)
-   - **Call limit**: 5 per key (configurable)
-   - **Exception thrown**: `TooManyRequestsException` with HTTP status 429
+- **Per-BIN locks:** A secondary `ConcurrentHashMap<String, Object>` is used to synchronize concurrent requests for the same BIN. This ensures that only one thread makes the external API call, while others wait for the cached response.
 
-   Currently implemented **in-memory**, but the design allows easy replacement with distributed solutions like Redis, Bucket4j, etc.
+- **Custom Rate Limiter:** A sliding window rate limiter prevents exceeding a configurable number of requests per minute to the external API.
 
-2. **Circuit Breaker (Resilience4j)**  
-   Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the API from other external failures like timeouts, connection issues, or unexpected responses. It opens the circuit after detecting repeated failures to avoid system overload.
+- **Circuit Breaker** The external call is protected with a `@CircuitBreaker` (Resilience4j). If the provider starts failing (e.g., too many `5xx/4xx` errors), the breaker opens and temporarily blocks access to prevent further overload.
+This strategy reduces external calls, protects the provider, and ensures a reliable and consistent experience under high concurrency.
+Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the API from other external failures like timeouts, connection issues, or unexpected responses. It opens the circuit after detecting repeated failures to avoid system overload.
+
+ <img width="200" height="500" alt="image" src="https://github.com/user-attachments/assets/278e3776-6c23-4954-a424-2cc1cf2196c4" />
 
    #### Key Configuration:
 
@@ -192,10 +192,9 @@ The API uses two complementary mechanisms for stability and resilience:
    - `permittedNumberOfCallsInHalfOpenState=2`: Allows 2 trial calls in half-open state.
    - `automaticTransitionFromOpenToHalfOpenEnabled=true`: Automatically switches to half-open mode.
    - `ignore-exceptions=com.ng.exceptions.TooManyRequestsException`: Ignores 429 errors managed by the rate limiter.
-
-   ⚠️ The Circuit Breaker is primarily designed to handle external failures, such as timeouts, connection errors, and unexpected HTTP responses (e.g., 5xx).
-
 ---
+
+
 
 ## 🐳 Running with Docker Compose
 
