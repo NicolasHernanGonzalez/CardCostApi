@@ -39,7 +39,9 @@ public class InMemoryRateLimit implements IRateLimitService {
         while (!timestamps.isEmpty() && timestamps.peek().isBefore(cutoff)) {
             timestamps.poll();
         }
-
+        if (timestamps.size() < limit == false) {
+            System.out.println("wtf!");
+        }
         return timestamps.size() < limit;
     }
 

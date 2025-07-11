@@ -5,6 +5,7 @@ import com.cardcostapi.exception.TooManyRequestsException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
 import com.cardcostapi.infrastructure.ICache;
+import com.cardcostapi.infrastructure.ILock;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Component;
 
@@ -17,29 +18,33 @@ public class BinLookupServiceImpl implements IBinLookupService {
     private final IBinLookupClient binLookupClient;
     private final IRateLimitService rateLimitService;
     private final ICache cache;
+    private final ILock lockService;
+    // Locks por BIN para evitar múltiples llamadas concurrentes al mismo tiempo
 
     private static final String NOT_FOUND = "NOT_FOUND";
 
-    // Locks por BIN para evitar múltiples llamadas concurrentes al mismo tiempo
-    private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
-
-    public BinLookupServiceImpl(IBinLookupClient binLookupClient, IRateLimitService rateLimitService, ICache cache) {
+    public BinLookupServiceImpl(IBinLookupClient binLookupClient, IRateLimitService rateLimitService, ICache cache, ILock lockService) {
         this.binLookupClient = binLookupClient;
         this.rateLimitService = rateLimitService;
         this.cache = cache;
+        this.lockService = lockService;
     }
 
     @Override
     @CircuitBreaker(name = "binlist", fallbackMethod = "binApiFallback")
     public String getCountryByBin(String bin) {
-        String cached = getCachedValue(bin);
-        if (cached != null) return cached;
 
-        Object lock = locks.computeIfAbsent(bin, k -> new Object());
+        String cached = getCachedValue(bin);
+        if (cached != null) {
+            return cached;
+        }
+
+        Object lock = lockService.aquire(bin);
         synchronized (lock) {
             cached = getCachedValue(bin);
-            if (cached != null) return cached;
-
+            if (cached != null) {
+                return cached;
+            }
             return fetchAndCache(bin);
         }
     }
