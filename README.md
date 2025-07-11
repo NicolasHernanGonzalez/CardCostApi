@@ -90,9 +90,9 @@ com.cardcostapi
 ```
 - **Response (404 Not Found)** if the country is not found
 
-#### 📝 Update cost by ID
-- **PUT** `/api/cost/{id}`
-- **Path Param**: internal ID of the entity (numeric)
+#### 📝 Update cost by country
+- **PUT** `/api/cost/{country}`
+- **Path Param**: country code (e.g. `US`, `GR`)
 - **Request Body**:
 ```json
 {
