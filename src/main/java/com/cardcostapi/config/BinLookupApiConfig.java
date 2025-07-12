@@ -15,5 +15,4 @@ public class BinLookupApiConfig {
     private String baseUrl;
     private int connectTimeout;
     private int readTimeout;
-    private int retries;
 }
