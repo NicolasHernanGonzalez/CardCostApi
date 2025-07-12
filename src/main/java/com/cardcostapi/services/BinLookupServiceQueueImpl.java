@@ -8,12 +8,13 @@ import com.cardcostapi.infrastructure.ICache;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 @Primary
@@ -107,11 +108,13 @@ public class BinLookupServiceQueueImpl implements IBinLookupService{
 
     public String binApiFallback(String bin, Throwable ex){
 
-        if (ex instanceof TooManyRequestsException) {
-            throw (TooManyRequestsException) ex;
+        Throwable cause = (ex instanceof ExecutionException) ? ex.getCause() : ex;
+
+        if (cause instanceof TooManyRequestsException) {
+            throw (TooManyRequestsException) cause;
         }
 
-        throw new ExternalServiceErrorException("BinData system is unstable, please try again later.Bin: " + bin + ". " + ex.getCause());
+        throw new ExternalServiceErrorException("BinData system is unstable, please try again later.Bin: " + bin + ". " + ex.getMessage());
     }
 
     //for test purposes

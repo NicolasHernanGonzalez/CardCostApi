@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -18,7 +19,7 @@ import java.util.Queue;
 public class FakeBinLookupClient implements IBinLookupClient {
 
     private final int maxRequests = 5;
-    private final long windowMillis = 3 * 60 * 1000;
+    private final Duration window = Duration.ofHours(1);
     private final Queue<Instant> accessTimestamps = new LinkedList<>();
 
     @Override
@@ -26,7 +27,7 @@ public class FakeBinLookupClient implements IBinLookupClient {
         Instant now = Instant.now();
 
         while (!accessTimestamps.isEmpty() &&
-                accessTimestamps.peek().isBefore(now.minusMillis(windowMillis))) {
+                accessTimestamps.peek().isBefore(now.minus(window))) {
             accessTimestamps.poll();
         }
 

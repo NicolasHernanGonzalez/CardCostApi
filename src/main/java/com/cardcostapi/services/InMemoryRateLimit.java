@@ -24,12 +24,12 @@ public class InMemoryRateLimit implements IRateLimitService {
     }
 
     @Override
-    public boolean canProceed(String key) {
-        Queue<Instant> timestamps = accessMap.get(key);
+    public boolean canProceed(String serviceName) {
+        Queue<Instant> timestamps = accessMap.get(serviceName);
 
         if (timestamps == null) {
             timestamps = new ConcurrentLinkedQueue<>();
-            accessMap.put(key, timestamps);
+            accessMap.put(serviceName, timestamps);
         }
 
         Instant cutoff = Instant.now().minus(window);
