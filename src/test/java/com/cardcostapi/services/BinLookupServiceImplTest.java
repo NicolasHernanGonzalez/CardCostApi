@@ -28,13 +28,13 @@ public class BinLookupServiceImplTest {
     private IRateLimitService rateLimitService;
     private ICache cache;
 
-    private BinLookupServiceQueueImpl binLookupService;
+    private BinLookupServiceImpl binLookupService;
 
     @BeforeEach
     void setUp() {
         cache = new InMemoryCache(60,1000);
         MockitoAnnotations.openMocks(this);
-        binLookupService = new BinLookupServiceQueueImpl(cache,binLookupClient, rateLimitService);
+        binLookupService = new BinLookupServiceImpl(cache,binLookupClient, rateLimitService);
     }
 
     @Test

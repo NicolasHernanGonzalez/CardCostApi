@@ -18,9 +18,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 @Primary
-//@Profile("fake_client")
 @Service
-public class BinLookupServiceQueueImpl implements IBinLookupService{
+public class BinLookupServiceImpl implements IBinLookupService{
 
     private final ICache cache;
     private final IBinLookupClient binLookupClient;
@@ -30,7 +29,7 @@ public class BinLookupServiceQueueImpl implements IBinLookupService{
 
     private final ConcurrentHashMap<String, CompletableFuture<String>> processingBins = new ConcurrentHashMap<>();
 
-    public BinLookupServiceQueueImpl(ICache cache, IBinLookupClient client, IRateLimitService rateLimitService) {
+    public BinLookupServiceImpl(ICache cache, IBinLookupClient client, IRateLimitService rateLimitService) {
         this.cache = cache;
         this.binLookupClient = client;
         this.rateLimitService = rateLimitService;
@@ -89,7 +88,7 @@ public class BinLookupServiceQueueImpl implements IBinLookupService{
             return completableFuture;
         });
 
-        return future.get(); // Espera sincrónica
+        return future.get();
     }
 
     private String getCachedValue(String bin) {
