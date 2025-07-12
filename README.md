@@ -56,6 +56,8 @@ com.cardcostapi
 }
 ```
 - **Response (200 OK)**:
+- **Response (429 Too many request)**
+- **Response (503 Service Unavailable)**
 
 ---
 
@@ -185,7 +187,8 @@ No external DB is required since the app uses an **embedded H2 database** for te
 ---
 
 ## ⚠️ Notes
-- The BIN is assumed to be 8 digits long (although the exercise states 6). Validation is enforced accordingly.
+- While the exercise specifies a 6-digit BIN, further research indicates that the standard length is 8 digits.
+  Therefore, validation has been adjusted to reflect this.
 
 ---
 
