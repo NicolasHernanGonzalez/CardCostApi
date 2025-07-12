@@ -1,8 +1,6 @@
 package com.cardcostapi.external;
 
 import com.cardcostapi.config.BinLookupApiConfig;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,6 +16,7 @@ public class BinLookupClientImpl implements IBinLookupClient {
     }
 
     public BinDataResponse getBinData(String bin){
+        System.out.println("========CALLING BIN LOOKUP API=============");
         String url = String.format("%s/%s", properties.getBaseUrl(), bin);
         return restTemplate.getForObject(url, BinDataResponse.class);
     }

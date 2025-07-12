@@ -53,7 +53,7 @@ public class ClearingCostCrudServiceImplTest {
     }
 
     @Test
-    public void ClearingCostCrudServiceImpl_AddClearingCost_AlreadyExists_ThrowsException() {
+    public void ClearingCostCrudServiceImpl_AlreadyExists() {
         //SETUP
         ClearingCost cost = new ClearingCost();
         cost.setCountry("AR");
@@ -71,7 +71,7 @@ public class ClearingCostCrudServiceImplTest {
     }
 
     @Test
-    public void ClearingCostCrudServiceImpl_UpdateClearingCost_Success() {
+    public void ClearingCostCrudServiceImpl_UpdateClearingCostuccess() {
         //SETUP
         ClearingCost costToUpdate = new ClearingCost();
         costToUpdate.setCountry("BR");
@@ -96,7 +96,7 @@ public class ClearingCostCrudServiceImplTest {
     }
 
     @Test
-    public void ClearingCostCrudServiceImpl_UpdateClearingCost_NotFound_ThrowsException() {
+    public void ClearingCostCrudServiceImpl_UpdateClearingCostNotFound() {
         //SETUP
         ClearingCost cost = new ClearingCost();
         cost.setCountry("UY");
