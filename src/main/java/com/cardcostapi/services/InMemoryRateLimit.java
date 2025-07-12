@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class InMemoryRateLimit implements IRateLimitService {
 
     private final Map<String, Queue<Instant>> accessMap;
-    private final Map<String, Object> locks;
     private final int limit;
     private final Duration window;
 
@@ -22,7 +21,6 @@ public class InMemoryRateLimit implements IRateLimitService {
         this.limit = properties.getLimit();                         // e.g. 5
         this.window = Duration.ofHours(properties.getDuration());   // e.g. 1
         this.accessMap = new ConcurrentHashMap<>();
-        this.locks = new ConcurrentHashMap<>();
     }
 
     @Override
