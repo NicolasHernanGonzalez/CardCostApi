@@ -1,4 +1,4 @@
-package com.cardcostapi.services;
+package com.cardcostapi.infrastructure;
 
 import com.cardcostapi.config.InMemoryRateLimitConfig;
 import org.springframework.stereotype.Component;

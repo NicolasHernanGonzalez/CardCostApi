@@ -5,6 +5,7 @@ import com.cardcostapi.exception.ExternalServiceErrorException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
 import com.cardcostapi.infrastructure.ICache;
+import com.cardcostapi.infrastructure.IRateLimitService;
 import com.cardcostapi.infrastructure.InMemoryCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

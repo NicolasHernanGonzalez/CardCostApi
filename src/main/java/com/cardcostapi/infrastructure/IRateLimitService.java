@@ -1,4 +1,4 @@
-package com.cardcostapi.services;
+package com.cardcostapi.infrastructure;
 
 public interface IRateLimitService {
 

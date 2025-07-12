@@ -5,6 +5,7 @@ import com.cardcostapi.exception.TooManyRequestsException;
 import com.cardcostapi.external.BinDataResponse;
 import com.cardcostapi.external.IBinLookupClient;
 import com.cardcostapi.infrastructure.ICache;
+import com.cardcostapi.infrastructure.IRateLimitService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Primary;

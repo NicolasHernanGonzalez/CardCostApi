@@ -1,6 +1,7 @@
 package com.cardcostapi.services;
 
 import com.cardcostapi.config.InMemoryRateLimitConfig;
+import com.cardcostapi.infrastructure.InMemoryRateLimit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
