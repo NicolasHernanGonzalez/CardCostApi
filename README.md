@@ -56,6 +56,8 @@ com.cardcostapi
 }
 ```
 - **Response (200 OK)**:
+- **Response (429 Too many request)**
+- **Response (503 Service Unavailable)**
 
 ---
 
