@@ -166,52 +166,7 @@ To run all tests:
 mvn test
 ```
 
-Includes unit tests for business logic and integration tests for endpoints and mocked calls to binlist.net.
-
 ---
-
-## ⚠️ Notes
-- The BIN is assumed to be 8 digits long (although the exercise states 6). Validation is enforced accordingly.
-
----
-
-## 📈 Scalability and Future Improvements
-
-- Designed for scalability, but current implementation uses in-memory cache, locks, and rate limiter which should be adapted for distributed environments before horizontal scaling.
-- Persistence layer decoupled using interface (`ClearingCostRepository`), allowing easy replacement of JPA with Redis, DynamoDB, or other services without changing business logic
-- Follows SOLID principles, especially **Open/Closed** and **Dependency Inversion**, to facilitate extensibility and testing
-- **Clear separation of responsibilities** (Controller, Service, Repository, External Client)
-
----
-
-## 🔒 Concurrency, Caching, Resilience Strategy
-
-To prevent multiple concurrent requests from hitting the external provider (`https://lookup.binlist.net`), a combination of in-memory caching, per-BIN locking, rate limiting, and circuit breaking has been implemented:
-
-- **In-memory cache:** A `ConcurrentHashMap` is used as a simple cache. It stores both valid responses (country codes) and a `"NOT_FOUND"` marker for invalid BINs, to avoid redundant external calls.
-
-- **Per-BIN locks:** A secondary `ConcurrentHashMap<String, Object>` is used to synchronize concurrent requests for the same BIN. This ensures that only one thread makes the external API call, while others wait for the cached response.
-
-- **Custom Rate Limiter:** A sliding window rate limiter prevents exceeding a configurable number of requests per minute to the external API.
-
-- **Circuit Breaker** The external call is protected with a `@CircuitBreaker` (Resilience4j). If the provider starts failing (e.g., too many `5xx/4xx` errors), the breaker opens and temporarily blocks access to prevent further overload.
-This strategy reduces external calls, protects the provider, and ensures a reliable and consistent experience under high concurrency.
-Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the API from other external failures like timeouts, connection issues, or unexpected responses. It opens the circuit after detecting repeated failures to avoid system overload.
-
- <img width="200" height="500" alt="image" src="https://github.com/user-attachments/assets/278e3776-6c23-4954-a424-2cc1cf2196c4" />
-
-   #### Key Configuration:
-
-   - `minimumNumberOfCalls=5`: Requires at least 5 calls to evaluate failures.
-   - `failureRateThreshold=50`: If 50% of calls fail, the circuit opens.
-   - `slidingWindowSize=10`: Sliding window of 10 calls for failure evaluation.
-   - `waitDurationInOpenState=30s`: Stays open for 30 seconds once triggered.
-   - `permittedNumberOfCallsInHalfOpenState=2`: Allows 2 trial calls in half-open state.
-   - `automaticTransitionFromOpenToHalfOpenEnabled=true`: Automatically switches to half-open mode.
-   - `ignore-exceptions=com.ng.exceptions.TooManyRequestsException`: Ignores 429 errors managed by the rate limiter.
----
-
-
 
 ## 🐳 Running with Docker Compose
 
@@ -226,6 +181,48 @@ This builds the image from the `Dockerfile` and exposes the API at:
 > http://localhost:8080
 
 No external DB is required since the app uses an **embedded H2 database** for temporary persistence.
+
+---
+
+## ⚠️ Notes
+- The BIN is assumed to be 8 digits long (although the exercise states 6). Validation is enforced accordingly.
+
+---
+
+## 📈 Scalability and Future Improvements
+
+- Designed for scalability, but current implementation uses in-memory cache, and rate limiter which should be adapted for distributed environments before horizontal scaling.
+- Persistence layer decoupled using interface (`ClearingCostRepository`), allowing easy replacement of JPA with Redis, DynamoDB, or other services without changing business logic
+- Follows SOLID principles, especially **Open/Closed** and **Dependency Inversion**, to facilitate extensibility and testing
+- **Clear separation of responsibilities** (Controller, Service, Repository, External Client)
+
+---
+
+## 🔒 Concurrency, Caching, Resilience Strategy
+
+To prevent multiple concurrent requests from hitting the external provider (`https://lookup.binlist.net`), a combination of in-memory caching, per-BIN locking, rate limiting, and circuit breaking has been implemented:
+
+- **In-memory cache (Guava):** It stores both valid responses (country codes) and a `"NOT_FOUND"` marker for invalid BINs, to avoid redundant external calls.
+
+- **Custom Rate Limiter:** A sliding window rate limiter prevents exceeding a configurable number of requests per minute to the external API.
+
+- **Circuit Breaker** The external call is protected with a `@CircuitBreaker` (Resilience4j). If the provider starts failing (e.g., too many `5xx/4xx` errors), the breaker opens and temporarily blocks access to prevent further overload.
+This strategy reduces external calls, protects the provider, and ensures a reliable and consistent experience under high concurrency.
+Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the API from other external failures like timeouts, connection issues, or unexpected responses. It opens the circuit after detecting repeated failures to avoid system overload.
+
+ <img width="200" height="500" alt="image" src="https://github.com/user-attachments/assets/2f98d1c4-9fa2-49d4-a3ff-adf552b1b1ae" />
+
+
+   #### Key Configuration:
+
+   - `minimumNumberOfCalls=5`: Requires at least 5 calls to evaluate failures.
+   - `failureRateThreshold=50`: If 50% of calls fail, the circuit opens.
+   - `slidingWindowSize=10`: Sliding window of 10 calls for failure evaluation.
+   - `waitDurationInOpenState=30s`: Stays open for 30 seconds once triggered.
+   - `permittedNumberOfCallsInHalfOpenState=2`: Allows 2 trial calls in half-open state.
+   - `automaticTransitionFromOpenToHalfOpenEnabled=true`: Automatically switches to half-open mode.
+   - `ignore-exceptions=com.ng.exceptions.TooManyRequestsException`: Ignores 429 errors managed by the rate limiter.
+---
 
 ## 👨‍💻 Author
 
