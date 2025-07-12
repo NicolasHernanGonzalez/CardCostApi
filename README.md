@@ -30,6 +30,7 @@ com.cardcostapi
 ├── controller       # REST endpoints
 ├── service          # Business logic
 ├── repository       # Database access
+├── infrastructure   # Cross-cutting concerns (cache, rate limiter)
 ├── domain/model     # Entities and DTOs
 ├── external         # binlist.net client
 ├── config           # Configuration (cache, restTemplate, etc.)
