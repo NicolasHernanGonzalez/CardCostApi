@@ -13,6 +13,7 @@ public interface ICache {
         //Testing purposes
         void putAll (Map<String, String> map);
 
+        //Testing purposes
         public Map<String, String> getCache();
 
 }

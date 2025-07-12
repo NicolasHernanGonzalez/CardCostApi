@@ -33,9 +33,13 @@ class PanNumberTest {
         PanNumber pan = new PanNumber();
         pan.setCardNumber("1234567");
 
-        //ASSERT
-        InvalidRequestException ex = assertThrows(InvalidRequestException.class, pan::validate);
-        assertEquals("Invalid param: PAN length must be between 8 and 19 digits", ex.getMessage());
+
+        try {
+            pan.validate();
+            fail("Expected InvalidRequestException to be thrown");
+        } catch (InvalidRequestException ex) {
+            assertEquals("Invalid param: PAN length must be between 8 and 19 digits", ex.getMessage());
+        }
     }
 
     @Test
