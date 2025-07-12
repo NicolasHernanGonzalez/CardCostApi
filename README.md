@@ -74,6 +74,7 @@ com.cardcostapi
 }
 ```
 - **Response (201 Created)**:
+- **Response (409 Condlict)**:
 ```json
 {
   "country": "UY",
@@ -116,17 +117,6 @@ com.cardcostapi
 - **DELETE** `/api/cost/{country}`
 - **Path Param**: country code
 - **Response (204 No Content)**
-
----
-
-## 🚨 Error Handling
-
-The API handles errors in a centralized way with consistent responses. Some covered scenarios:
-
-- **400 Bad Request**: Invalid data or validation errors.
-- **404 Not Found**: Country or resource not found.
-- **409 Conflict**: Integrity violation or duplicates.
-- **424 Failed Dependency**: Error in external dependencies (e.g. binlist.net).
 
 ---
 
