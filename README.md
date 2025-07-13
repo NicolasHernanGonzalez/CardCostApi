@@ -204,8 +204,7 @@ To prevent multiple concurrent requests from hitting the external provider (`htt
 This strategy reduces external calls, protects the provider, and ensures a reliable and consistent experience under high concurrency.
 Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the API from other external failures like timeouts, connection issues, or unexpected responses. It opens the circuit after detecting repeated failures to avoid system overload.
 
- <img width="200" height="500" alt="image" src="https://github.com/user-attachments/assets/2f98d1c4-9fa2-49d4-a3ff-adf552b1b1ae" />
-
+ <img width="200" height="500" alt="image" src="https://github.com/user-attachments/assets/b4b9789a-f6b2-4144-ae70-8190fdb140d6" />
 
    #### Key Configuration:
 
