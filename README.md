@@ -204,9 +204,7 @@ To prevent multiple concurrent requests from hitting the external provider (`htt
 This strategy reduces external calls, protects the provider, and ensures a reliable and consistent experience under high concurrency.
 Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the API from other external failures like timeouts, connection issues, or unexpected responses. It opens the circuit after detecting repeated failures to avoid system overload.
 
- <img width="200" height="500" alt="image" src="https://github.com/user-attachments/assets/b4b9789a-f6b2-4144-ae70-8190fdb140d6" />
-
-   #### Key Configuration:
+ #### Key Configuration:
 
    - `minimumNumberOfCalls=5`: Requires at least 5 calls to evaluate failures.
    - `failureRateThreshold=50`: If 50% of calls fail, the circuit opens.
@@ -215,6 +213,10 @@ Although the Rate Limiter handles 429 errors, the Circuit Breaker protects the A
    - `permittedNumberOfCallsInHalfOpenState=2`: Allows 2 trial calls in half-open state.
    - `automaticTransitionFromOpenToHalfOpenEnabled=true`: Automatically switches to half-open mode.
    - `ignore-exceptions=com.ng.exceptions.TooManyRequestsException`: Ignores 429 errors managed by the rate limiter.
+---
+
+<img width="200" height="500" alt="image" src="https://github.com/user-attachments/assets/b4b9789a-f6b2-4144-ae70-8190fdb140d6" />
+
 ---
 
 ## 👨‍💻 Author
