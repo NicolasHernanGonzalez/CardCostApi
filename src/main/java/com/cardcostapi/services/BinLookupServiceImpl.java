@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Primary
 @Service
@@ -27,7 +24,7 @@ public class BinLookupServiceImpl implements IBinLookupService{
     private final IRateLimitService rateLimitService;
 
     private static final String NOT_FOUND = "NOT_FOUND";
-
+    private final ExecutorService executor = Executors.newFixedThreadPool(5);
     private final ConcurrentHashMap<String, CompletableFuture<String>> processingBins = new ConcurrentHashMap<>();
 
     public BinLookupServiceImpl(ICache cache, IBinLookupClient client, IRateLimitService rateLimitService) {
@@ -47,13 +44,14 @@ public class BinLookupServiceImpl implements IBinLookupService{
         }
 
         CompletableFuture<String> future = processingBins.compute(bin, (b, existingFuture) -> {
+
             if (existingFuture != null) {
                 return existingFuture;
             }
 
             CompletableFuture<String> completableFuture = new CompletableFuture<>();
 
-            Executors.newSingleThreadExecutor().submit(() -> {
+            executor.submit(() -> {
                 try {
                     if (!rateLimitService.canProceed("binlist")) {
                         completableFuture.completeExceptionally(new TooManyRequestsException("Rate limit exceeded for external service"));
